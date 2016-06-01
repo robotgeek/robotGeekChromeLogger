@@ -1,10 +1,85 @@
 ; (function () 
 {
+
+  var dbName = 'log-vanillajs';
+  var savedFileEntry, fileDisplayPath;
+
+  function getLogAsText(callback)
+  {
+
+  }
+
+  function exportToFileEntry(fileEntry) {
+  savedFileEntry = fileEntry;
+
+  var status = document.getElementById('status');
+
+  // Use this to get a file path appropriate for displaying
+  chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
+    fileDisplayPath = path;
+    status.innerText = 'Exporting to '+path;
+  });
+
+
+
+
+
+    fileEntry.createWriter(function(fileWriter) {
+
+      var truncated = false;
+      
+
+     var blob = new Blob([document.getElementById("mainConsole").innerHTML], {type : "text/plain"});
+
+
+
+      fileWriter.onwriteend = function(e) {
+        if (!truncated) {
+          truncated = true;
+          // You need to explicitly set the file size to truncate
+          // any content that might have been there before
+          this.truncate(blob.size);
+          return;
+        }
+        status.innerText = 'Export to '+fileDisplayPath+' completed';
+      };
+
+      fileWriter.onerror = function(e) {
+        status.innerText = 'Export failed: '+e.toString();
+      };
+
+      fileWriter.write(blob);
+
+    });
+
+}
+ function doExportToDisk() {
+
+  if (savedFileEntry) {
+
+    exportToFileEntry(savedFileEntry);
+
+  } else {
+
+    chrome.fileSystem.chooseEntry( {
+      type: 'saveFile',
+      suggestedName: 'log.csv',
+      accepts: [ { description: 'Comma Seperated Values (*.csv)',
+                   extensions: ['csv']} ],
+      acceptsAllTypes: true
+    }, exportToFileEntry);
+
+  }
+}
+
+  document.getElementById('exportToDisk').addEventListener('click', doExportToDisk);
+
+
   function CTC() {
 
     // A collection of the GUI elements
     this.port      = document.getElementById('port-selection');
-    this.baudSelection     = document.getElementById('baud-selection');
+    //this.baudSelection     = document.getElementById('baud-selection');
     this.connect   = document.getElementById('port-connect');
     this.setupPanelLink   = document.getElementById('setupPanelLink');
     
@@ -19,10 +94,10 @@
     this.dataInSelection = document.getElementById('dataIn');
     this.mainConsole = document.getElementById('mainConsole');
 
-    this.dataOutSelection = document.getElementById('dataOut');
-    this.convertInput = document.getElementById('convertInput');
+    //this.dataOutSelection = document.getElementById('dataOut');
+    //this.convertInput = document.getElementById('convertInput');
     
-    this.buadRate = document.getElementById('baud-selection').value;
+    //this.buadRate = document.getElementById('baud-selection').value;
     
 
 
@@ -64,8 +139,8 @@
 //     this.myTimer();
 
 
-	this.dataInType = 0;//ascii
-	this.dataOutType = 0;//ascii
+	// this.dataInType = 0;//ascii
+	// this.dataOutType = 0;//ascii
 
 
     
@@ -80,7 +155,9 @@
 
   CTC.ArduinoConnection = 
   {
-    bitrate:    this.buadRate,
+
+    //bitrate:    this.buadRate,
+    bitrate:    38400,
     dataBits:   "eight",
     parityBit:  "no",
     stopBits:   "one"
@@ -139,6 +216,7 @@
 // 
 //   
 //   };
+
 
 
 	CTC.prototype.sendAscii= function(byteVal)
@@ -353,45 +431,47 @@
     {
     	//console.log(self.dataInType);
 
-    	if(self.dataInType == 0)
-    	{
-    		//console.log("ASCII");
-    		//self.sendByte(254);
-    		self.sendAscii();
-    	}
-    	else if(self.dataInType == 1)
-    	{
-    		//console.log("Decimal");
-    		//self.sendByte(254);
-    		self.sendDecimal();
-    	}
-    	else if(self.dataInType == 2)
-    	{
-    		//console.log("Hex");
-    		//self.sendByte(254);
-    		self.sendHex();
-    	}
-    	else
-    	{
-    		//console.log("noType");
+    	// if(self.dataInType == 0)
+    	// {
+    	// 	//console.log("ASCII");
+    	// 	//self.sendByte(254);
+    	// 	self.sendAscii();
+    	// }
+    	// else if(self.dataInType == 1)
+    	// {
+    	// 	//console.log("Decimal");
+    	// 	//self.sendByte(254);
+    	// 	self.sendDecimal();
+    	// }
+    	// else if(self.dataInType == 2)
+    	// {
+    	// 	//console.log("Hex");
+    	// 	//self.sendByte(254);
+    	// 	self.sendHex();
+    	// }
+    	// else
+    	// {
+    	// 	//console.log("noType");
 
-    	}
+    	// }
     	//self.sendByte(254);
 	});
 
 
-    self.baudSelection.addEventListener('change', function () 
-    {
-      CTC.ArduinoConnection = 
-	  {
-	    bitrate:    parseInt(this.value),
-	    dataBits:   "eight",
-	    parityBit:  "no",
-	    stopBits:   "one"
-	  };	
+ //    self.baudSelection.addEventListener('change', function () 
+ //    {
+ //      console.log("CHANGE BAUD");
+ //      CTC.ArduinoConnection = 
+	//   {
+ //      //bitrate:    parseInt(this.value),
+ //      bitrate:    38400,
+	//     dataBits:   "eight",
+	//     parityBit:  "no",
+	//     stopBits:   "one"
+	//   };	
 
 
-	});
+	// });
 
 
 
@@ -403,79 +483,79 @@
 			var serialInString = mainConsole.innerHTML;
 			mainConsole.innerHTML = "";
 
-    		if(self.dataInType == 0)
-    		{
-					//console.log(serialOutString);
-				var serialInArray = serialInString.split("");
-    			//check current value of drop down
-    			if(this.value ==1)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInArray[j].charCodeAt().toString(10);
-					}   				
-    			}
+    // 		if(self.dataInType == 0)
+    // 		{
+				// 	//console.log(serialOutString);
+				// var serialInArray = serialInString.split("");
+    // 			//check current value of drop down
+    // 			if(this.value ==1)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInArray[j].charCodeAt().toString(10);
+				// 	}   				
+    // 			}
 
-    			else if(this.value ==2)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						mainConsole.innerHTML = mainConsole.innerHTML + " 0x" + serialInArray[j].charCodeAt().toString(16);
-					}   		
+    // 			else if(this.value ==2)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		mainConsole.innerHTML = mainConsole.innerHTML + " 0x" + serialInArray[j].charCodeAt().toString(16);
+				// 	}   		
     				
-    			}
+    // 			}
 
-    		}
-    		else if(self.dataInType == 1)
-    		{
-				var serialInArray = serialInString.trim().split(" ");
-				console.log(serialInString);
-				console.log(serialInArray);
+    // 		}
+    // 		else if(self.dataInType == 1)
+    // 		{
+				// var serialInArray = serialInString.trim().split(" ");
+				// console.log(serialInString);
+				// console.log(serialInArray);
 
-    			if(this.value ==0)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						mainConsole.innerHTML = mainConsole.innerHTML + String.fromCharCode(serialInArray[j]);
-					}   				
-    			}
+    // 			if(this.value ==0)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		mainConsole.innerHTML = mainConsole.innerHTML + String.fromCharCode(serialInArray[j]);
+				// 	}   				
+    // 			}
 
-    			else if(this.value ==2)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						console.log("t");
-						console.log(j);
-						console.log(serialInArray[j]);
-						console.log(serialInArray[j].toString(16));
+    // 			else if(this.value ==2)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		console.log("t");
+				// 		console.log(j);
+				// 		console.log(serialInArray[j]);
+				// 		console.log(serialInArray[j].toString(16));
 
-						mainConsole.innerHTML = mainConsole.innerHTML + " 0x" + parseInt(serialInArray[j]).toString(16);
-					}   		
+				// 		mainConsole.innerHTML = mainConsole.innerHTML + " 0x" + parseInt(serialInArray[j]).toString(16);
+				// 	}   		
     				
-    			}
+    // 			}
 
-    		}
-    		else if(self.dataInType == 2)
-    		{
-				var serialInArray = serialInString.trim().split(" ");
-    			if(this.value ==0)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						mainConsole.innerHTML = mainConsole.innerHTML  + String.fromCharCode(serialInArray[j]);
-					}   				
-    			}
+    // 		}
+    // 		else if(self.dataInType == 2)
+    // 		{
+				// var serialInArray = serialInString.trim().split(" ");
+    // 			if(this.value ==0)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		mainConsole.innerHTML = mainConsole.innerHTML  + String.fromCharCode(serialInArray[j]);
+				// 	}   				
+    // 			}
 
-    			else if(this.value ==1)
-    			{
-					for(j = 0; j <serialInArray.length; j++)
-					{
-						mainConsole.innerHTML = mainConsole.innerHTML + " " + parseInt(serialInArray[j]).toString(10);
-					}   		
+    // 			else if(this.value ==1)
+    // 			{
+				// 	for(j = 0; j <serialInArray.length; j++)
+				// 	{
+				// 		mainConsole.innerHTML = mainConsole.innerHTML + " " + parseInt(serialInArray[j]).toString(10);
+				// 	}   		
     				
-    			}
+    // 			}
 
-    		}
+    // 		}
 
 
 				//mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j].toString(10);
@@ -485,23 +565,23 @@
     	}
 
 
-    	self.dataInType = this.value;
-    	console.log(self.dataInType);
+    	// self.dataInType = this.value;
+    	// console.log(self.dataInType);
 
     	//if()
 	});
 
 
-    self.dataOutSelection.addEventListener('change', function () 
-    {
-    	self.dataInType = this.value;
-	});
+ //    self.dataOutSelection.addEventListener('change', function () 
+ //    {
+ //    	self.dataInType = this.value;
+	// });
 
-    self.convertInput.addEventListener('change', function () 
-    {
-    	//if( this.value;
+ //    self.convertInput.addEventListener('change', function () 
+ //    {
+ //    	//if( this.value;
 
-	});
+	// });
 
 
 
@@ -611,7 +691,12 @@
       self.connect.classList.add('disabled');
       self.connect.innerHTML = 'Connecting...';
       
+      //CTC.buadRate = document.getElementById('baud-selection').value;
 
+      console.log("update conn") ;
+      
+// console.log(CTC.buadRate) ;
+// console.log(CTC.ArduinoConnection) ;
       // Ask chrome to create a connection
       chrome.serial.connect(self.port.value, CTC.ArduinoConnection, function (info) {
 
@@ -653,6 +738,8 @@
 
       // Ask Chrome to close the connection
       chrome.serial.disconnect(self.connection.connectionId, function (result) {
+
+        chrome.serial.onReceive.removeListener(readHandler)
 
         // Clear the stored connection information
         self.connection = null;
@@ -736,67 +823,91 @@ var packetsReceived = 0;
 
 var readHandler = function(info)
 {
-	var dataInType = document.getElementById('dataIn').value;
+
 
 		console.log("ASCII in");
 
-	if(dataInType == 0)
-	{
+	// if(dataInType == 0)
+	// {
 		//console.log("ASCII in");
 
 		var serialInBuffer = (new Uint8Array(info.data));
 		var mainConsole = document.getElementById("mainConsole");
 
+        console.log(mainConsole);
+
 		for(j = 0; j < serialInBuffer.length; j++)
 		{
 			//	mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j];
 				var tempBuffer =  serialInBuffer[j];
-				var tempoBuffer = "" + serialInBuffer[j] + " ";
+        
+        var tempoBuffer =  "" + serialInBuffer[j] + " ";
+        
+        if (serialInBuffer[j] == 0x0A)
+        {
+
+          var d = new Date();
+         //var dateString = d.toDateString();
+         //var time = d.toLocaleTimeString();
+         var time = d.toString();
+         var dateTime = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
+
+
+          mainConsole.innerHTML = mainConsole.innerHTML + "," + dateTime  +   String.fromCharCode( serialInBuffer[j]);
+        }
+        else
+        {
+          mainConsole.innerHTML = mainConsole.innerHTML +   String.fromCharCode( serialInBuffer[j]);
+        }
+
+				
 				console.log(tempoBuffer);
 				//mainConsole.innerHTML = mainConsole.innerHTML + " " +  String.valueOf(tempBuffer ) .charCodeAt(0);
-				mainConsole.innerHTML = mainConsole.innerHTML +   String.fromCharCode( serialInBuffer[j]);
+				
 				// /mainConsole.innerHTML = mainConsole.innerHTML + " " +  tempoBuffer.charCodeAt(0);
 
-		}
-
-
-
-
-	}
-	else if(dataInType == 1)
-	{
-		console.log("Decimal in");
-		var serialInBuffer = (new Uint8Array(info.data));
-		var mainConsole = document.getElementById("mainConsole");
-
-		for(j = 0; j < serialInBuffer.length; j++)
-		{
-			//	mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j];
-				mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j].toString(10);
-
-
-		}
-	}
-	else if(dataInType == 2)
-	{
-
-	console.log("Hex in");
-		var serialInBuffer = (new Uint8Array(info.data));
-		var mainConsole = document.getElementById("mainConsole");
-
-		for(j = 0; j < serialInBuffer.length; j++)
-		{
-			//	mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j];
-				mainConsole.innerHTML = mainConsole.innerHTML + " " + "0x" + serialInBuffer[j].toString(16).toUpperCase();
+        mainConsole.scrollTop = mainConsole.scrollHeight;  
 
 		}
 
-	}
-	else
-	{
-		console.log("noType");
 
-	}
+
+
+	// }
+	// else if(dataInType == 1)
+	// {
+	// 	console.log("Decimal in");
+	// 	var serialInBuffer = (new Uint8Array(info.data));
+	// 	var mainConsole = document.getElementById("mainConsole");
+
+	// 	for(j = 0; j < serialInBuffer.length; j++)
+	// 	{
+	// 		//	mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j];
+	// 			mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j].toString(10);
+
+
+	// 	}
+	// }
+	// else if(dataInType == 2)
+	// {
+
+	// console.log("Hex in");
+	// 	var serialInBuffer = (new Uint8Array(info.data));
+	// 	var mainConsole = document.getElementById("mainConsole");
+
+	// 	for(j = 0; j < serialInBuffer.length; j++)
+	// 	{
+	// 		//	mainConsole.innerHTML = mainConsole.innerHTML + " " + serialInBuffer[j];
+	// 			mainConsole.innerHTML = mainConsole.innerHTML + " " + "0x" + serialInBuffer[j].toString(16).toUpperCase();
+
+	// 	}
+
+	// }
+	// else
+	// {
+	// 	console.log("noType");
+
+	// }
 
 
 
@@ -1134,7 +1245,7 @@ window.onload =  function() {
 
 	mainConsole = document.getElementById("mainConsole");
     terminalWidth = window.innerWidth - 20;
-    terminalHeight = window.innerHeight - document.getElementById("setup").offsetHeight - document.getElementById("packetContainer").offsetHeight- document.getElementById("header").offsetHeight -40;
+    terminalHeight = window.innerHeight - document.getElementById("setup").offsetHeight -  document.getElementById("header").offsetHeight - 200;
     mainConsole.style.width = terminalWidth + "px";
     mainConsole.style.height = terminalHeight + "px";
 
@@ -1152,7 +1263,7 @@ function redrawTerminal()
 
 	mainConsole = document.getElementById("mainConsole");
     terminalWidth = window.innerWidth - 20;
-    terminalHeight = window.innerHeight - document.getElementById("setup").offsetHeight - document.getElementById("packetContainer").offsetHeight - document.getElementById("header").offsetHeight  -40;
+    terminalHeight = window.innerHeight - document.getElementById("setup").offsetHeight - document.getElementById("header").offsetHeight  - 200;
     mainConsole.style.width = terminalWidth + "px";
     mainConsole.style.height = terminalHeight + "px";
 

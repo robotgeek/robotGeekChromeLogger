@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en"
 <head>
   <meta charset="UTF-8">
-  <title>InterbotiX Chrome DYNAmanaager</title>
+  <title>RobotGeek Serial Logger</title>
   <link rel="stylesheet" href="style.css">
   <script type="text/javascript" src="jquery.min.js"></script>
 
 
  <meta charset="utf-8"/>
-    <title>InterbotiX Chrome DYNAmanaager</title>
+    <title>RobotGeek Serial Logger</title>
     
     <style type="text/css">
       body {     -webkit-user-select: text; }
@@ -23,10 +23,25 @@
 		
 		<div id="header" style="width:100%;">
 
+
+				<div class="small-2 columns">
+					
+					<img src="rgRFIDLoggerLogo.png">
+				</div>
+				<div class="small-2 columns">
+					
+					<p>
+						This program can be used to log and save data from the RFIDuino. For setup instructions see our <a href="http://learn.robotgeek.com/projects/277-rfid-logger.html">RFID Loggger Setup Page</a>
+					</p> 
+				</div>
+
+		<!-- 
 				<h1 style="display:inline;">
-					FauxTerm
-				</h1>
+					RG Logger
+				</h1> -->
+
 		</div>
+		<div style="clear:both;"> </div>
 		
 		<div id="app" style="    ">
 			<hr />
@@ -37,7 +52,7 @@
 					</select>
 				</div>
 
-
+				<!--
 				<div class="small-1 columns">
 					<select name="baud-selection" id="baud-selection">
 
@@ -49,13 +64,13 @@
 						<option value="14400">14400</option>
 						<option value="19200">19200</option>
 						<option value="28800">28800</option>
-						<option value="38400">38400</option>
+						<option value="38400" selected>38400</option>
 						<option value="57600">57600</option>
 						<option value="115200">115200</option>
 						<option value="1000000">1000000</option>
 						
 					</select>
-				</div>
+				</div>-->
 
 
 				
@@ -66,58 +81,23 @@
 				</div>
 				
 				<div class="small-1 columns">
-					<button id="sendData" class="button secondary small expand">
-						Send
-					</button>
-				</div>
-				
-				<div class="small-1 columns">
-				<!--
-					<button id="stopSweep" class="button secondary small expand">
-						Stop Sweep
-					</button>
-				
-				-->
+
 					<button id="clearButton" class="button secondary small expand">
-						Clear Canvas
+						Clear Log
 					</button>
-				
-
-					Data In
-					<select name="dataIn" id="dataIn">
-
-						<option value="0">ASCII</option>
-						<option value="1">Decimal</option>
-						<option value="2">HEX</option>
-
-						
-					</select>
-
-					<input type="checkbox" name="convertInput" id="convertInput" value="1" checked>Convert Input<br>
-
-
-					
-					Data Out
-					<select name="dataOut" id="dataOut">
-
-						<option value="0">ASCII</option>
-						<option value="1">Decimal</option>
-						<option value="2">HEX</option>
-
-						
-					</select>
 				</div>
+			
+				<div class="small-1 columns">
+					<button id="exportToDisk">Export to disk</button> <div id="status"></div>
+				</div>
+
 			</div>
 
 
-			<div style="overflow:scroll;border:10px black solid;" id = "mainConsole"></div>
+			<pre style="overflow:scroll;border:10px black solid;height:200px;" id = "mainConsole"></pre>
 
-			<div id="input">
-
-				<label class="control-label" for="serialOut" id="serialOutLabel">Input</label>
-				<input type="text" id="serialOut" value="1" >
-			</div>
-
+	
+			<!--
 			<div class="row" style="display:block;" id="packetContainer">
 				<h1>Packet Last Sent:</h1>
 				<span id="packet"></span>
@@ -202,7 +182,7 @@
 					</table>
 				
 				</div>
-			</div>
+			</div>-->
 		</div>
 		<!--
 			<canvas id="canvasRoom" style="display:block;margin-left:auto;margin-right:auto;" ></canvas>
