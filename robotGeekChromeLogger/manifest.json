@@ -1,7 +1,7 @@
 {
 
   "manifest_version": 2,
-  "name": "rgLogger",
+  "name": "RobotGeek RFIDuino Logger",
   "version": "0.0.1",
   "app": {
     "background": {
@@ -13,5 +13,11 @@
   "permissions": [
   	"serial",
   	{"fileSystem": ["write", "retainEntries", "directory"]}
-  		]
+  		],
+
+  "icons": { "16": "icon16.png",
+           "48": "icon48.png",
+          "128": "icon128.png" }
+
+
 }
