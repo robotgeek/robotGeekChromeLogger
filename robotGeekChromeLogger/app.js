@@ -157,7 +157,7 @@
   {
 
     //bitrate:    this.buadRate,
-    bitrate:    38400,
+    bitrate:    9600,
     dataBits:   "eight",
     parityBit:  "no",
     stopBits:   "one"
@@ -850,7 +850,12 @@ var readHandler = function(info)
          //var dateString = d.toDateString();
          //var time = d.toLocaleTimeString();
          var time = d.toString();
-         var dateTime = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
+         var minutes =("0" + d.getMinutes()).substr(-2); // leading 0 for minutes
+         var seconds =("0" + d.getSeconds()).substr(-2); // leading 0 for minutes
+      
+
+
+         var dateTime = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear() + " " + d.getHours() + ":" + minutes + ":" + seconds;
 
 
           mainConsole.innerHTML = mainConsole.innerHTML + "," + dateTime  +   String.fromCharCode( serialInBuffer[j]);
